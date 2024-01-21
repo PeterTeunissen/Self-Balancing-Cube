@@ -26,11 +26,11 @@ void save() {
 
 void angle_setup() {
   Wire.begin();
-  delay (100);
+  delay(100);
   writeTo(MPU6050, PWR_MGMT_1, 0);
   writeTo(MPU6050, ACCEL_CONFIG, accSens << 3); // Specifying output scaling of accelerometer
   writeTo(MPU6050, GYRO_CONFIG, gyroSens << 3); // Specifying output scaling of gyroscope
-  delay (100);
+  delay(100);
 
   for (int i = 0; i < 1024; i++) {
     angle_calc();
@@ -276,13 +276,13 @@ void how_close() {
   SerialBT.print(" AngleY: "); 
   SerialBT.print(angleY); 
   if (abs(robot_angleX) < 10 && abs(robot_angleY) < 10) {
-    SerialBT.print(" At Vertex ");
+    SerialBT.print(" At Vertex(ID1) ");
   } else if (robot_angleX > -45 && robot_angleX < -25 && robot_angleY > -30 && robot_angleY < -10) {
-    SerialBT.print(" At First edge ");
+    SerialBT.print(" At First edge(ID2) ");
   } else if (robot_angleX > 20 && robot_angleX < 40 && robot_angleY > -30 && robot_angleY < -10) {
-    SerialBT.print(" At Second edge ");
+    SerialBT.print(" At Second edge(ID3) ");
   } else if (abs(robot_angleX) < 15 && robot_angleY > 30 && robot_angleY < 50) {
-    SerialBT.print(" At Third edge ");
+    SerialBT.print(" At Third edge(ID4) ");
   } else {
     SerialBT.print("Not close ");
   }
@@ -298,7 +298,10 @@ void how_close() {
 }
 
 void printValues() {
-  SerialBT.print("K1: "); SerialBT.print(K1);
-  SerialBT.print(" K2: "); SerialBT.print(K2);
-  SerialBT.print(" K3: "); SerialBT.println(K3,4);
+  SerialBT.print("K1: "); 
+  SerialBT.print(K1);
+  SerialBT.print(" K2: "); 
+  SerialBT.print(K2);
+  SerialBT.print(" K3: "); 
+  SerialBT.println(K3,4);
 }

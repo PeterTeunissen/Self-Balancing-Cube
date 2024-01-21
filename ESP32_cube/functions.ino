@@ -16,7 +16,9 @@ void save() {
     EEPROM.put(0, offsets);
     EEPROM.commit();
     EEPROM.get(0, offsets);
-    if (offsets.ID1 == 99 && offsets.ID2 == 99 && offsets.ID3 == 99 && offsets.ID4 == 99) calibrated = true;
+    if (offsets.ID1 == 99 && offsets.ID2 == 99 && offsets.ID3 == 99 && offsets.ID4 == 99) {
+      calibrated = true;
+    }
     calibrating = false;
     Serial.println("calibrating off");
     beep();
@@ -92,23 +94,39 @@ void angle_calc() {
 
   angleX = robot_angleX;
   angleY = robot_angleY;
-  //SerialBT.print("AngleX: "); SerialBT.print(angleX); SerialBT.print(" AngleY: "); SerialBT.println(angleY); 
   
+  SerialBT.print("AngleX: "); 
+  SerialBT.print(angleX); 
+  SerialBT.print(" AngleY: "); 
+  SerialBT.println(angleY); 
+  
+  if (calibrating) {
+    how_close();
+  }
+
   if (abs(angleX - offsets.X2) < 2 && abs(angleY - offsets.Y2) < 0.6) {
     balancing_point = 2;
-    if (!vertical) beep();
+    if (!vertical) {
+      beep();
+    }
     vertical = true;
   } else if (abs(angleX - offsets.X3) < 2 && abs(angleY - offsets.Y3) < 0.6) {
     balancing_point = 3;
-    if (!vertical) beep();
+    if (!vertical) {
+      beep();
+    }
     vertical = true;
   } else if (abs(angleX - offsets.X4) < 0.6 && abs(angleY - offsets.Y4) < 2) {
     balancing_point = 4;
-    if (!vertical) beep();
+    if (!vertical) {
+      beep();
+    }
     vertical = true;
   } else if (abs(angleX - offsets.X1) < 0.4 && abs(angleY - offsets.Y1) < 0.4) {
     balancing_point = 1;
-    if (!vertical) beep();
+    if (!vertical) {
+      beep();
+    }
     vertical = true;
   } 
 }
@@ -169,26 +187,42 @@ void Motor3_control(int sp) {
 }
 
 int Tuning() {
-  if (!SerialBT.available())  return 0;
+  if (!SerialBT.available()) {
+    return 0;
+  }
   //delay(1);
   char param = SerialBT.read();               // get parameter byte
-  if (!SerialBT.available()) return 0;
+  if (!SerialBT.available()) {
+    return 0;
+  }
   char cmd = SerialBT.read();                 // get command byte
   //SerialBT.flush();
   switch (param) {
     case 'p':
-      if (cmd == '+')    K1 += 1;
-      if (cmd == '-')    K1 -= 1;
+      if (cmd == '+') {
+        K1 += 1;
+      }
+      if (cmd == '-') {
+        K1 -= 1;
+      }
       printValues();
       break;
     case 'i':
-      if (cmd == '+')    K2 += 0.05;
-      if (cmd == '-')    K2 -= 0.05;
+      if (cmd == '+') {
+        K2 += 0.05;
+      }
+      if (cmd == '-') {
+        K2 -= 0.05;
+      }
       printValues();
       break;
     case 's':
-      if (cmd == '+')    K3 += 0.005;
-      if (cmd == '-')    K3 -= 0.005;
+      if (cmd == '+') {
+        K3 += 0.005;
+      }
+      if (cmd == '-')  {
+        K3 -= 0.005;
+      }
       printValues();
       break; 
     case 'c':
@@ -197,7 +231,10 @@ int Tuning() {
         SerialBT.println("calibrating on");
       }
       if (cmd == '-' && calibrating)  {
-        SerialBT.print("X: "); SerialBT.print(robot_angleX); SerialBT.print(" Y: "); SerialBT.println(robot_angleY);
+        SerialBT.print("X: "); 
+        SerialBT.print(robot_angleX); 
+        SerialBT.print(" Y: "); 
+        SerialBT.println(robot_angleY);
         if (abs(robot_angleX) < 10 && abs(robot_angleY) < 10) {
           offsets.ID1 = 99;
           offsets.X1 = robot_angleX;
@@ -231,6 +268,33 @@ int Tuning() {
       break;              
    }
    return 1;
+}
+
+void how_close() {
+  SerialBT.print("AngleX: "); 
+  SerialBT.print(angleX); 
+  SerialBT.print(" AngleY: "); 
+  SerialBT.print(angleY); 
+  if (abs(robot_angleX) < 10 && abs(robot_angleY) < 10) {
+    SerialBT.print(" At Vertex ");
+  } else if (robot_angleX > -45 && robot_angleX < -25 && robot_angleY > -30 && robot_angleY < -10) {
+    SerialBT.print(" At First edge ");
+  } else if (robot_angleX > 20 && robot_angleX < 40 && robot_angleY > -30 && robot_angleY < -10) {
+    SerialBT.print(" At Second edge ");
+  } else if (abs(robot_angleX) < 15 && robot_angleY > 30 && robot_angleY < 50) {
+    SerialBT.print(" At Third edge ");
+  } else {
+    SerialBT.print("Not close ");
+  }
+  SerialBT.print(" ID1: "); 
+  SerialBT.print(offsets.ID1); 
+  SerialBT.print(" ID2: "); 
+  SerialBT.print(offsets.ID2); 
+  SerialBT.print(" ID3: "); 
+  SerialBT.print(offsets.ID3); 
+  SerialBT.print(" ID4: "); 
+  SerialBT.print(offsets.ID4); 
+  SerialBT.println();
 }
 
 void printValues() {

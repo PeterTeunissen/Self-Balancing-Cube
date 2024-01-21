@@ -29,9 +29,24 @@ void setup() {
   Motor3_control(0);
 
   EEPROM.get(0, offsets);
-  if (offsets.ID1 == 99 && offsets.ID2 == 99 && offsets.ID3 == 99 && offsets.ID4 == 99) calibrated = true;
-    else calibrated = false;
-    
+  if (offsets.ID1 == 99 && offsets.ID2 == 99 && offsets.ID3 == 99 && offsets.ID4 == 99) {
+    calibrated = true;
+  } else {
+    calibrated = false;
+  }
+
+  SerialBT.print("From EEPROM: ID1:")
+  SerialBT.print(offsets.ID1);
+  SerialBT.print(" ID2:");
+  SerialBT.print(offsets.ID2);
+  SerialBT.print(" ID4:");
+  SerialBT.print(offsets.ID3);
+  SerialBT.print(" ID4:");
+  SerialBT.print(offsets.ID4);
+ 
+  SerialBT.print(" calibrated:");
+  SerialBT.println(calibrated);
+
   delay(2000);
   digitalWrite(BUZZER, HIGH);
   delay(70);
@@ -49,19 +64,27 @@ void loop() {
     if (balancing_point == 1) {
       angleX -= offsets.X1;
       angleY -= offsets.Y1;
-      if (abs(angleX) > 8 || abs(angleY) > 8) vertical = false;
+      if (abs(angleX) > 8 || abs(angleY) > 8) {
+        vertical = false;
+      }
     } else if (balancing_point == 2) {
       angleX -= offsets.X2;
       angleY -= offsets.Y2;
-      if (abs(angleY) > 5) vertical = false;
+      if (abs(angleY) > 5) {
+        vertical = false;
+      }
     } else if (balancing_point == 3) {
       angleX -= offsets.X3;
       angleY -= offsets.Y3;
-      if (abs(angleY) > 5) vertical = false;
+      if (abs(angleY) > 5) {
+        vertical = false;
+      }
     } else if (balancing_point == 4) {
       angleX -= offsets.X4;
       angleY -= offsets.Y4;
-      if (abs(angleX) > 5) vertical = false;
+      if (abs(angleX) > 5) {
+        vertical = false;
+      }
     }
     
     if (abs(angleX) < 8 || abs(angleY) < 8) {  // fast restore angle

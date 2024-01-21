@@ -7,7 +7,7 @@ BluetoothSerial SerialBT;
 
 void setup() {
   Serial.begin(115200);
-  SerialBT.begin("ESP32-Cube-blue"); //Bluetooth device name
+  SerialBT.begin("ESP32-Cube-PT"); //Bluetooth device name
   EEPROM.begin(EEPROM_SIZE);
   pinMode(BUZZER, OUTPUT);
   pinMode(BRAKE, OUTPUT);
@@ -35,17 +35,17 @@ void setup() {
     calibrated = false;
   }
 
-  SerialBT.print("From EEPROM: ID1:")
-  SerialBT.print(offsets.ID1);
-  SerialBT.print(" ID2:");
-  SerialBT.print(offsets.ID2);
-  SerialBT.print(" ID4:");
-  SerialBT.print(offsets.ID3);
-  SerialBT.print(" ID4:");
-  SerialBT.print(offsets.ID4);
+  Serial.print("From EEPROM: ID1:");
+  Serial.print(offsets.ID1);
+  Serial.print(" ID2:");
+  Serial.print(offsets.ID2);
+  Serial.print(" ID4:");
+  Serial.print(offsets.ID3);
+  Serial.print(" ID4:");
+  Serial.print(offsets.ID4);
  
-  SerialBT.print(" calibrated:");
-  SerialBT.println(calibrated);
+  Serial.print(" calibrated:");
+  Serial.println(calibrated);
 
   delay(2000);
   digitalWrite(BUZZER, HIGH);
@@ -127,7 +127,7 @@ void loop() {
   if (currentT - previousT_2 >= 2000) {    
     battVoltage((double)analogRead(VBAT) / 207); 
     if (!calibrated && !calibrating) {
-      SerialBT.println("first you need to calibrate the balancing points...");
+      Serial.println("first you need to calibrate the balancing points...");
     }
     previousT_2 = currentT;
   }

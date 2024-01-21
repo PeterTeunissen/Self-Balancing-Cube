@@ -6,22 +6,22 @@ void writeTo(byte device, byte address, byte value) {
 }
 
 void beep() {
-    digitalWrite(BUZZER, HIGH);
-    delay(70);
-    digitalWrite(BUZZER, LOW);
-    delay(80);
+  digitalWrite(BUZZER, HIGH);
+  delay(70);
+  digitalWrite(BUZZER, LOW);
+  delay(80);
 }
 
 void save() {
-    EEPROM.put(0, offsets);
-    EEPROM.commit();
-    EEPROM.get(0, offsets);
-    if (offsets.ID1 == 99 && offsets.ID2 == 99 && offsets.ID3 == 99 && offsets.ID4 == 99) {
-      calibrated = true;
-    }
-    calibrating = false;
-    Serial.println("calibrating off");
-    beep();
+  EEPROM.put(0, offsets);
+  EEPROM.commit();
+  EEPROM.get(0, offsets);
+  if (offsets.ID1 == 99 && offsets.ID2 == 99 && offsets.ID3 == 99 && offsets.ID4 == 99) {
+    calibrated = true;
+  }
+  calibrating = false;
+  Serial.println("calibrating off");
+  beep();
 }
 
 void angle_setup() {
@@ -38,7 +38,8 @@ void angle_setup() {
     delay(3);
   }
   GyZ_offset = GyZ_offset_sum >> 10;
-  Serial.print("GyZ offset value = "); Serial.println(GyZ_offset);
+  Serial.print("GyZ offset value = ");
+  Serial.println(GyZ_offset);
   beep();
   
   for (int i = 0; i < 1024; i++) {
@@ -47,7 +48,8 @@ void angle_setup() {
     delay(3);
   }
   GyY_offset = GyY_offset_sum >> 10;
-  Serial.print("GyY offset value = "); Serial.println(GyY_offset);
+  Serial.print("GyY offset value = ");
+  Serial.println(GyY_offset);
   beep();
   
   for (int i = 0; i < 1024; i++) {
@@ -56,7 +58,8 @@ void angle_setup() {
     delay(3);
   }
   GyX_offset = GyX_offset_sum >> 10;
-  Serial.print("GyX offset value = "); Serial.println(GyX_offset);
+  Serial.print("GyX offset value = ");
+  Serial.println(GyX_offset);
   beep();
   beep();
 }
@@ -95,10 +98,10 @@ void angle_calc() {
   angleX = robot_angleX;
   angleY = robot_angleY;
   
-  SerialBT.print("AngleX: "); 
-  SerialBT.print(angleX); 
-  SerialBT.print(" AngleY: "); 
-  SerialBT.println(angleY); 
+  // Serial.print("AngleX: "); 
+  // Serial.print(angleX); 
+  // Serial.print(" AngleY: "); 
+  // Serial.println(angleY); 
   
   if (calibrating) {
     how_close();
@@ -110,24 +113,28 @@ void angle_calc() {
       beep();
     }
     vertical = true;
+    Serial.println("At ID:2");
   } else if (abs(angleX - offsets.X3) < 2 && abs(angleY - offsets.Y3) < 0.6) {
     balancing_point = 3;
     if (!vertical) {
       beep();
     }
     vertical = true;
+    Serial.println("At ID:3");
   } else if (abs(angleX - offsets.X4) < 0.6 && abs(angleY - offsets.Y4) < 2) {
     balancing_point = 4;
     if (!vertical) {
       beep();
     }
     vertical = true;
+    Serial.println("At ID:4");
   } else if (abs(angleX - offsets.X1) < 0.4 && abs(angleY - offsets.Y1) < 0.4) {
     balancing_point = 1;
     if (!vertical) {
       beep();
     }
     vertical = true;
+    Serial.println("At ID:1");
   } 
 }
 
@@ -187,16 +194,16 @@ void Motor3_control(int sp) {
 }
 
 int Tuning() {
-  if (!SerialBT.available()) {
+  if (!Serial.available()) {
     return 0;
   }
   //delay(1);
-  char param = SerialBT.read();               // get parameter byte
-  if (!SerialBT.available()) {
+  char param = Serial.read();               // get parameter byte
+  if (!Serial.available()) {
     return 0;
   }
-  char cmd = SerialBT.read();                 // get command byte
-  //SerialBT.flush();
+  char cmd = Serial.read();                 // get command byte
+  //Serial.flush();
   switch (param) {
     case 'p':
       if (cmd == '+') {
@@ -228,39 +235,39 @@ int Tuning() {
     case 'c':
       if (cmd == '+' && !calibrating) {
         calibrating = true;
-        SerialBT.println("calibrating on");
+        Serial.println("calibrating on");
       }
       if (cmd == '-' && calibrating)  {
-        SerialBT.print("X: "); 
-        SerialBT.print(robot_angleX); 
-        SerialBT.print(" Y: "); 
-        SerialBT.println(robot_angleY);
+        Serial.print("X: "); 
+        Serial.print(robot_angleX); 
+        Serial.print(" Y: "); 
+        Serial.println(robot_angleY);
         if (abs(robot_angleX) < 10 && abs(robot_angleY) < 10) {
           offsets.ID1 = 99;
           offsets.X1 = robot_angleX;
           offsets.Y1 = robot_angleY;
-          SerialBT.println("Vertex OK.");
+          Serial.println("Vertex OK.");
           save();
-        } else if (robot_angleX > -45 && robot_angleX < -25 && robot_angleY > -30 && robot_angleY < -10) {
+        } else if (robot_angleX > -45 && robot_angleX < -25 && robot_angleY > -35 && robot_angleY < -10) {
           offsets.ID2 = 99;
           offsets.X2 = robot_angleX;
           offsets.Y2 = robot_angleY;
-          SerialBT.println("First edge OK.");
+          Serial.println("First edge OK.");
           save();
-        } else if (robot_angleX > 20 && robot_angleX < 40 && robot_angleY > -30 && robot_angleY < -10) {
+        } else if (robot_angleX > 20 && robot_angleX < 40 && robot_angleY > -35 && robot_angleY < -10) {
           offsets.ID3 = 99;
           offsets.X3 = robot_angleX;
           offsets.Y3 = robot_angleY;
-          SerialBT.println("Second edge OK.");
+          Serial.println("Second edge OK.");
           save();
-        } else if (abs(robot_angleX) < 15 && robot_angleY > 30 && robot_angleY < 50) {
+        } else if (abs(robot_angleX) < 15 && robot_angleY > 25 && robot_angleY < 50) {
           offsets.ID4 = 99;
           offsets.X4 = robot_angleX;
           offsets.Y4 = robot_angleY;
-          SerialBT.println("Third edge OK.");
+          Serial.println("Third edge OK.");
           save();
         } else {
-          SerialBT.println("The angles are wrong!!!");
+          Serial.println("The angles are wrong!!!");
           beep();
           beep();
         }
@@ -271,37 +278,37 @@ int Tuning() {
 }
 
 void how_close() {
-  SerialBT.print("AngleX: "); 
-  SerialBT.print(angleX); 
-  SerialBT.print(" AngleY: "); 
-  SerialBT.print(angleY); 
   if (abs(robot_angleX) < 10 && abs(robot_angleY) < 10) {
-    SerialBT.print(" At Vertex(ID1) ");
-  } else if (robot_angleX > -45 && robot_angleX < -25 && robot_angleY > -30 && robot_angleY < -10) {
-    SerialBT.print(" At First edge(ID2) ");
-  } else if (robot_angleX > 20 && robot_angleX < 40 && robot_angleY > -30 && robot_angleY < -10) {
-    SerialBT.print(" At Second edge(ID3) ");
-  } else if (abs(robot_angleX) < 15 && robot_angleY > 30 && robot_angleY < 50) {
-    SerialBT.print(" At Third edge(ID4) ");
+    Serial.print(" At ID1 ");
+  } else if (robot_angleX > -45 && robot_angleX < -25 && robot_angleY > -35 && robot_angleY < -10) {
+    Serial.print(" At ID2 ");
+  } else if (robot_angleX > 20 && robot_angleX < 40 && robot_angleY > -35 && robot_angleY < -10) {
+    Serial.print(" At ID3 ");
+  } else if (abs(robot_angleX) < 15 && robot_angleY > 25 && robot_angleY < 50) {
+    Serial.print(" At ID4 ");
   } else {
-    SerialBT.print("Not close ");
+    Serial.print(" At --- ");
   }
-  SerialBT.print(" ID1: "); 
-  SerialBT.print(offsets.ID1); 
-  SerialBT.print(" ID2: "); 
-  SerialBT.print(offsets.ID2); 
-  SerialBT.print(" ID3: "); 
-  SerialBT.print(offsets.ID3); 
-  SerialBT.print(" ID4: "); 
-  SerialBT.print(offsets.ID4); 
-  SerialBT.println();
+  Serial.print(" ID1: "); 
+  Serial.print(offsets.ID1); 
+  Serial.print(" ID2: "); 
+  Serial.print(offsets.ID2); 
+  Serial.print(" ID3: "); 
+  Serial.print(offsets.ID3); 
+  Serial.print(" ID4: "); 
+  Serial.print(offsets.ID4); 
+  Serial.print(" robot_angleX: "); 
+  Serial.print(robot_angleX); 
+  Serial.print(" robot_angleY: "); 
+  Serial.print(robot_angleY); 
+  Serial.println();
 }
 
 void printValues() {
-  SerialBT.print("K1: "); 
-  SerialBT.print(K1);
-  SerialBT.print(" K2: "); 
-  SerialBT.print(K2);
-  SerialBT.print(" K3: "); 
-  SerialBT.println(K3,4);
+  Serial.print("K1: "); 
+  Serial.print(K1);
+  Serial.print(" K2: "); 
+  Serial.print(K2);
+  Serial.print(" K3: "); 
+  Serial.println(K3,4);
 }
